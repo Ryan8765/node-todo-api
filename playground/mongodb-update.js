@@ -32,6 +32,10 @@ MongoClient.connect('mongodb://localhost:27017/testTodoApp', (err, db)=> {
 		//google mondodb update operators.  $set is an update operator
 		$set: {
 			completed: true
+		},
+		//increment the age by 1
+		$inc: {
+			age: 1
 		}
 	}, {
 		returnOriginal: false
