@@ -1,6 +1,7 @@
 //root of the application
 var express    = require('express');
 var bodyParser = require('body-parser');
+var {ObjectID} = require('mongodb');
 
 
 //get mongoose
@@ -31,6 +32,7 @@ app.post('/todos',  (req, res) => {
 });
 
 
+//get all todos
 app.get('/todos',  (req, res) => {
 
 	Todo.find().then( (todos ) => {
@@ -42,6 +44,35 @@ app.get('/todos',  (req, res) => {
 	},  (e) => {
 		res.status(400).send(e);
 	});
+
+});
+
+
+//get a single todo by ID.  To use a param - just use req.params.id to get the id from the params object.
+// GET /todos/12132323
+app.get('/todos/:id',  (req, res) => {
+	var id = req.params.id;
+		
+	//validate id using isval to make sure we are given a good id
+	if( !ObjectID.isValid(id)) {
+		return res.status(404).send();
+	}
+
+	//query database findById
+	Todo.findById( id )
+		.then( (todo) => {
+			//success
+				if( todo ) {
+					res.send({todo});
+				} else {
+					res.status(404).send();
+				}
+
+		},  (e) => {
+			//error
+				//400 - don't send back the error argument. 
+			res.status(400).send();
+		});
 
 });
 
