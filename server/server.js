@@ -11,6 +11,9 @@ var {User}     = require('./models/user');
 
 var app = express();
 
+//this allows heroku to use port, if not use 3000 loocally.  Then in app.listen below, you need to switch out the port number with "port"
+const port = process.env.PORT || 3000;
+
 //this is middleware
 app.use(bodyParser.json());
 
@@ -81,8 +84,8 @@ app.get('/todos/:id',  (req, res) => {
 
 
 
-app.listen(3000,  () => {
-	console.log('Started on port 3000');
+app.listen(port,  () => {
+	console.log(`Started up at port ${port}`);
 });
 
 module.exports = {app};
