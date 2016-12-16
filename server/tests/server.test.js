@@ -1,13 +1,16 @@
 const expect  = require('expect');
 const request = require('supertest');
+const {ObjectID} = require('mongodb');
 
 const {app}   = require('./../server');
 const {Todo}  = require('./../models/todo');
 
 //thi sis used to populate the database with some todos before each run
 const todos = [{
+	_id: new ObjectID(),
 	text: "first test todo"
 }, {
+	_id: new ObjectID(),
 	text: 'Second test todo'
 }];
 //this runs before the test case and clears all of the database.  this runs before each test below.
@@ -74,6 +77,39 @@ describe('GET /todos',  () => {
 			.expect( (res) => {
 				expect(res.body.todos.length).toBe(2);
 			})
+			.end(done);
+	});
+});
+
+
+describe('GET /todos/:id',  () => {
+	it('should return todo doc',  (done) => {
+		request(app)
+			//toHexString converts an id to a string
+			.get(`/todos/${todos[0]._id.toHexString()}`)
+			.expect(200)
+			.expect( (res) => {
+				expect(res.body.todo.text).toBe(todos[0].text);
+			})
+			.end(done);
+	});
+
+
+	it('should return a 404 if todo not found',  (done) => {
+		//create a valid ID - make sure it returns a 404 return status
+		var id = new ObjectID();
+		request(app)
+			.get(`/todos/${id.toHexString()}`)
+			.expect(404)
+			.end(done);
+	});
+
+
+	it('should return 404 for non-object ids',  (done) => {
+		var id = 23423423;
+		request(app)
+			.get(`/todos/${id}`)
+			.expect(404)
 			.end(done);
 	});
 });
