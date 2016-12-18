@@ -1,3 +1,5 @@
+require('./config/config.js');
+
 const _=require('lodash');
 
 //root of the application
@@ -14,7 +16,7 @@ var {User}     = require('./models/user');
 var app = express();
 
 //this allows heroku to use port, if not use 3000 loocally.  Then in app.listen below, you need to switch out the port number with "port"
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 //this is middleware
 app.use(bodyParser.json());
