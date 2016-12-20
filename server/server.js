@@ -9,9 +9,10 @@ const {ObjectID} = require('mongodb');
 
 
 //get mongoose
-var {mongoose} = require('./db/mongoose.js');
-var {Todo}     = require('./models/todo');
-var {User}     = require('./models/user');
+var {mongoose}     = require('./db/mongoose.js');
+var {Todo}         = require('./models/todo');
+var {User}         = require('./models/user');
+var {authenticate} = require('./middleware/authenticate');
 
 var app = express();
 
@@ -145,6 +146,14 @@ app.patch('/todos/:id',  (req, res) => {
 		res.status(400).send();
 	});
 
+});
+
+
+
+
+//passing the third argument lets this use the authenticate middleware 
+app.get('/users/me', authenticate, (req, res)=> {
+	res.send(req.user);
 });
 
 /******************************************************************************

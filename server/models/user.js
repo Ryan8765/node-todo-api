@@ -54,6 +54,27 @@ UserSchema.methods.toJSON = function() {
 	return _.pick(userObject, ['_id', 'email']);
 };
 
+//you can create model methods - these are used on the actual models "User" (it isn't an instance it works off of, it is the actual class).  Everything added to statics is made a model method
+UserSchema.statics.findByToken = function(token) {
+	//the model is the "this"
+	var User = this;
+	var decoded; 
+
+	try {
+		decoded = jwt.verify(token, 'abc123');
+	} catch(e) {
+		return new Promise( (resolve, reject) => {
+			reject();
+		});
+	}
+
+	return User.findOne({
+		'_id': decoded._id,
+		'tokens.token':token,
+		'tokens.access':'auth'
+	});
+};
+
 //add method on UserSchema.methods - this is an object that allows you to add methods.  Arrow functions do not bind, so we are using the regular function.
 UserSchema.methods.generateAuthToken = function() {
 	var user = this;
