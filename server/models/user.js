@@ -1,7 +1,9 @@
-const mongoose = require('mongoose');
+const mongoose  = require('mongoose');
 const validator = require('validator');
-const jwt = require('jsonwebtoken');
-const _ = require('lodash');
+const jwt       = require('jsonwebtoken');
+const _         = require('lodash');
+const bcrypt    = require('bcryptjs');
+//middleware methods check out the mongoose middleware
 
 var UserSchema = new mongoose.Schema(
 	{
@@ -91,6 +93,29 @@ UserSchema.methods.generateAuthToken = function() {
 		return token;
 	});
 };
+
+
+//this is gonig to run some code before running an event - this is from mongoose documenation
+UserSchema.pre('save', function(next) {
+	var user = this;
+
+	if( user.isModified('password') ) {
+		//user.password
+		bcrypt.genSalt(10,  (er, salt) => {
+			bcrypt.hash(user.password, salt,  (err, hash) => {
+				user.password = hash;
+				next();
+			});
+		});
+		//user.password = hash;
+
+
+
+		//next();
+	} else {
+		next();
+	}
+});
 
 var User = mongoose.model("User", UserSchema);
 
