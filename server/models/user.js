@@ -143,6 +143,23 @@ UserSchema.statics.findByCredentials = function ( email, password ) {
 	});
 };
 
+
+
+//removes token from currently logged in user
+
+UserSchema.methods.removeToken = function(token) {
+	//$pull lets you remove items from an array that match certain criteria
+	var user = this;
+
+	 return user.update({
+		$pull: {
+			tokens: {
+				token: token
+			}
+		}
+	});
+};
+
 var User = mongoose.model("User", UserSchema);
 
 
