@@ -183,6 +183,32 @@ app.post('/users',  (req, res) => {
 });
 
 
+//post /users/login {email, password}
+app.post('/users/login',  (req, res) => {
+
+	//get user email
+	var email = req.body.email;
+	//get user password 
+	var pw = req.body.password;
+	//user
+	var user;
+	
+
+
+	User.findByCredentials(email, pw).then( (user) => {
+		//create new token and add to header
+		return user.generateAuthToken().then( (token) => {
+			res.header('x-auth', token).send(user);
+		});
+	}).catch( (e) => {
+		//respond to use and let them know they are not logged in.
+		res.status(400).send(); 
+	});
+
+
+});
+
+
 
 
 

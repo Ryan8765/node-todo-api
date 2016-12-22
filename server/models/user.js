@@ -117,6 +117,32 @@ UserSchema.pre('save', function(next) {
 	}
 });
 
+//this is a model method that will check to make sure the password and email are in the database
+UserSchema.statics.findByCredentials = function ( email, password ) {
+
+	var User = this;
+	return User.findOne({email}).then( (user) => {
+		if(!user) {
+			//this automatically throws error
+			return Promise.reject();
+		}
+
+		//becrypt doesn't return a promise, so we need to wrap it with one. 
+		return new Promise( (resolve, reject) => {
+			bcrypt.compare(password, user.password,  (err, res) => {
+				if( res ) {
+					//if hashed password matches send back user.
+					resolve(user);
+				} else {
+					reject();
+				}
+			});
+		});
+
+
+	});
+};
+
 var User = mongoose.model("User", UserSchema);
 
 
