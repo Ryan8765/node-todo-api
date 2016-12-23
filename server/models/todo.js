@@ -20,7 +20,13 @@ var Todo = mongoose.model('Todo', {
 		type: Number,
 		//set a default value 
 		default: null
+	},
+	//adds an "_" to let people know that this fields represents an "id" field.  This is the id of the user who created the todo
+	_creator: {
+		required: true,
+		type: mongoose.Schema.Types.ObjectId
 	}
+
 
 });
 

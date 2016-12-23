@@ -18,7 +18,11 @@ const users = [{
 }, {
 	_id: userTwoId,
 	email: 'jessssss@gmail.com',
-	password: 'userTwoPass'
+	password: 'userTwoPass',
+	tokens: [{
+		access: 'auth',
+		token: jwt.sign({_id:userTwoId, access:'auth'}, 'abc123').toString()
+	}]
 }];
 
 const populateUsers =  (done) => {
@@ -37,12 +41,14 @@ const populateUsers =  (done) => {
 //thi sis used to populate the database with some todos before each run
 const todos = [{
 	_id: new ObjectID(),
-	text: "first test todo"
+	text: "first test todo",
+	_creator: userOneId
 }, {
 	_id: new ObjectID(),
 	text: 'Second test todo',
 	completed: true,
-	completedAt: 333
+	completedAt: 333,
+	_creator: userTwoId
 }];
 //this runs before the test case and clears all of the database.  this runs before each test below.
 const populateTodos = (done) => {	

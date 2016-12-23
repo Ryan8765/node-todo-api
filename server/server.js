@@ -23,10 +23,11 @@ const port = process.env.PORT;
 app.use(bodyParser.json());
 
 //this is for resource creation - this is for creating a new todo
-app.post('/todos',  (req, res) => {
+app.post('/todos',  authenticate, (req, res) => {
 	console.log( req.body );
 	var todo = new Todo({
-		text: req.body.text
+		text: req.body.text,
+		_creator: req.user._id
 	});
 
 	todo.save().then( (doc) => {
@@ -41,9 +42,12 @@ app.post('/todos',  (req, res) => {
 
 
 //get all todos
-app.get('/todos',  (req, res) => {
+app.get('/todos', authenticate,  (req, res) => {
 
-	Todo.find().then( (todos ) => {
+	Todo.find({
+		//only return todos that the user logged in has created. 
+		_creator: req.user._id
+	}).then( (todos ) => {
 		//sending 
 		res.send({
 			//send the todos back to the requesting resource.
@@ -58,7 +62,7 @@ app.get('/todos',  (req, res) => {
 
 //get a single todo by ID.  To use a param - just use req.params.id to get the id from the params object.
 // GET /todos/12132323
-app.get('/todos/:id',  (req, res) => {
+app.get('/todos/:id', authenticate,  (req, res) => {
 	var id = req.params.id;
 		
 	//validate id using isval to make sure we are given a good id
@@ -67,8 +71,10 @@ app.get('/todos/:id',  (req, res) => {
 	}
 
 	//query database findById
-	Todo.findById( id )
-		.then( (todo) => {
+	Todo.findOne({
+		_id: id,
+		_creator: req.user._id
+		}).then( (todo) => {
 			//success
 				if( todo ) {
 					res.send({todo});
@@ -86,7 +92,7 @@ app.get('/todos/:id',  (req, res) => {
 
 
 
-app.delete('/todos/:id',  (req, res) => {
+app.delete('/todos/:id', authenticate, (req, res) => {
 	//get the id
 	var id = req.params.id;
 	console.log(id);
@@ -98,7 +104,11 @@ app.delete('/todos/:id',  (req, res) => {
 	}
 
 	//remove todo by id
-	Todo.findByIdAndRemove(id).then( (todo) => {
+	Todo.findOne({
+		_id: id,
+		_creator: req.user._id
+
+	}).then( (todo) => {
 
 		if( !todo ) {
 
@@ -115,7 +125,7 @@ app.delete('/todos/:id',  (req, res) => {
 });
 
 
-app.patch('/todos/:id',  (req, res) => {
+app.patch('/todos/:id', authenticate, (req, res) => {
 
 	var id = req.params.id;
 
@@ -136,7 +146,7 @@ app.patch('/todos/:id',  (req, res) => {
 	}
 
 
-	Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then( (todo) => {
+	Todo.findOneAndUpdate({_id:id, _creator:req.user._id}, {$set: body}, {new: true}).then( (todo) => {
 		if(!todo) {
 			console.log("not finding by id");
 			return res.status(404).send();
